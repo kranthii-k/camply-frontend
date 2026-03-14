@@ -5,7 +5,10 @@ import { Outlet } from "react-router-dom";
 import Breadcrumbs from "@/components/ui/breadcrumb";
 import { useQueryClient } from "@tanstack/react-query";
 
+import { useSocketNotifications } from "@/hooks/useSocketNotifications";
+
 const Index = () => {
+  useSocketNotifications();
   const [showCreatePost, setShowCreatePost] = useState(false);
   const queryClient = useQueryClient();
 

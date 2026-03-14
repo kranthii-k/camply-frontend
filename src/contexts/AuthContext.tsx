@@ -11,10 +11,11 @@ import { useNavigate } from 'react-router-dom';
 
 interface AuthContextType {
   user: User | null;
+  accessToken: string | null;
   isLoading: boolean;
   isAuthenticated: boolean;
   setUser: (user: User | null) => void;
-  setAccessToken: (token: string) => void;
+  setAccessToken: (token: string | null) => void;
   logout: () => Promise<void>;
   refreshUser: () => Promise<void>;
 }
@@ -23,6 +24,7 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
+  const [accessToken, setAccessTokenState] = useState<string | null>(localStorage.getItem('accessToken'));
   const [isLoading, setIsLoading] = useState(true);
   const navigate = useNavigate();
 
@@ -60,8 +62,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   };
 
-  const setAccessToken = useCallback((token: string) => {
-    localStorage.setItem('accessToken', token);
+  const setAccessToken = useCallback((token: string | null) => {
+    if (token) {
+      localStorage.setItem('accessToken', token);
+    } else {
+      localStorage.removeItem('accessToken');
+    }
+    setAccessTokenState(token);
   }, []);
 
   const refreshUser = useCallback(async () => {
@@ -77,6 +84,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       console.error('Logout error:', error);
     } finally {
       localStorage.removeItem('accessToken');
+      setAccessTokenState(null);
       setUser(null);
       navigate('/login');
     }
@@ -114,6 +122,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const value = {
     user,
+    accessToken,
     isLoading,
     isAuthenticated: !!user,
     setUser,
