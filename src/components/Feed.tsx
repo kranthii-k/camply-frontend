@@ -175,6 +175,7 @@ export function Feed() {
               comments={post._count.comments}
               category={post.category.toLowerCase() as "query" | "solution" | "job" | "discussion"}
               userVote={post.userVote}
+              isFlagged={(post as any).isFlagged}
               onDelete={handlePostDeleted}
             />
           ))}

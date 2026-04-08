@@ -12,6 +12,14 @@ vi.mock('@/services/feed', () => ({
   createPost: vi.fn(),
 }));
 
+vi.mock('@/contexts/AuthContext', () => ({
+  useAuth: vi.fn(() => ({
+    isAuthenticated: true,
+    user: { id: '1', username: 'tester' },
+    loading: false,
+  })),
+}));
+
 // Mock PostCard to simplify testing the Feed logic
 vi.mock('@/components/PostCard', () => ({
   PostCard: ({ content, username }: any) => (
