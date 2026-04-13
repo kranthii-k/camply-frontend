@@ -222,7 +222,7 @@ export function Explore() {
 }
 
 const QuickActionButton = ({ onClick, icon, label }: { onClick: () => void, icon: React.ReactNode, label: string }) => (
-  <Button variant="outline" className="h-20 flex-col gap-2 hover:border-primary/50 hover:bg-primary/5 transition-all" onClick={onClick}>
+  <Button variant="outline" className="h-20 flex-col gap-2 border-border hover:border-primary/50 hover:bg-muted hover:text-foreground transition-all" onClick={onClick}>
     {React.cloneElement(icon as React.ReactElement, { className: "h-6 w-6" })}
     <span className="text-sm font-medium">{label}</span>
   </Button>
