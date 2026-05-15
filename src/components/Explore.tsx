@@ -23,20 +23,20 @@ export function Explore() {
   const { data: pro } = useProStatus();
 
   // Fetch Hackathons
-  const { data: hackathons, isLoading: loadingHackathons } = useQuery({
+  const { data: hackathonsData, isLoading: loadingHackathons } = useQuery({
     queryKey: ['hackathons'],
     queryFn: async () => {
-      const res = await apiFetch<any[]>('/api/v1/hackathons');
-      return res.data;
+      const res = await apiFetch<{ hackathons: any[] }>('/api/v1/hackathons');
+      return res.data?.hackathons || [];
     }
   });
 
   // Fetch Events
-  const { data: events, isLoading: loadingEvents } = useQuery({
+  const { data: eventsData, isLoading: loadingEvents } = useQuery({
     queryKey: ['events'],
     queryFn: async () => {
-      const res = await apiFetch<any[]>('/api/v1/events');
-      return res.data;
+      const res = await apiFetch<{ events: any[] }>('/api/v1/events');
+      return res.data?.events || [];
     }
   });
 
@@ -121,48 +121,53 @@ export function Explore() {
             </TabsContent>
 
             <TabsContent value="hackathons" className="space-y-6">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <Zap className="h-5 w-5 text-primary fill-current" />
-                  <h2 className="text-xl font-bold">Live Hackathons</h2>
-                </div>
-                <Badge variant="outline">{hackathons?.length || 0} Total</Badge>
-              </div>
+              {!pro?.isPro ? (
+                <ProPaywall />
+              ) : (
+                <>
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <Zap className="h-5 w-5 text-primary fill-current" />
+                      <h2 className="text-xl font-bold">Live Hackathons</h2>
+                    </div>
+                    <Badge variant="outline">{hackathonsData?.length || 0} Total</Badge>
+                  </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <AnimatePresence mode="popLayout">
-                  {loadingHackathons ? (
-                    Array.from({ length: 4 }).map((_, i) => <CardSkeleton key={i} />)
-                  ) : (
-                    hackathons?.map((h: any) => (
-                      <motion.div key={h.id} layout initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
-                        <Card className="p-5 hover:shadow-lg transition-all duration-300 border-l-4 border-l-primary group">
-                          <div className="space-y-4">
-                            <div className="flex justify-between items-start">
-                              <h3 className="font-bold text-lg group-hover:text-primary transition-colors">{h.title}</h3>
-                              <Badge className="bg-primary/10 text-primary border-none">{h.source}</Badge>
-                            </div>
-                            <div className="flex items-center gap-3 text-sm text-muted-foreground">
-                              <div className="flex items-center gap-1"><Calendar className="w-4 h-4" /> {new Date(h.startDate).toLocaleDateString()}</div>
-                              <div className="flex items-center gap-1"><Users className="w-4 h-4" /> {h.organizer}</div>
-                            </div>
-                            <div className="flex gap-2 pt-2">
-                              <Button asChild variant="outline" size="sm" className="w-full">
-                                <a href={h.learnMoreUrl} target="_blank" rel="noopener noreferrer">
-                                  <ExternalLink className="w-3 h-3 mr-2" /> Learn More
-                                </a>
-                              </Button>
-                              <Button size="sm" className="w-full" onClick={() => setCreateTeamOpen(true)}>
-                                <Plus className="w-3 h-3 mr-2" /> Team Up
-                              </Button>
-                            </div>
-                          </div>
-                        </Card>
-                      </motion.div>
-                    ))
-                  )}
-                </AnimatePresence>
-              </div>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <AnimatePresence mode="popLayout">
+                      {loadingHackathons ? (
+                        Array.from({ length: 4 }).map((_, i) => <CardSkeleton key={i} />)
+                      ) : (
+                        hackathonsData?.map((h: any) => (
+                          <motion.div key={h.id} layout initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
+                            <Card className="p-5 hover:shadow-lg transition-all duration-300 border-l-4 border-l-primary group">
+                              <div className="space-y-4">
+                                <div className="flex justify-between items-start">
+                                  <h3 className="font-bold text-lg group-hover:text-primary transition-colors">{h.title}</h3>
+                                  <Badge className="bg-primary/10 text-primary border-none">{h.source}</Badge>
+                                </div>
+                                <div className="flex items-center gap-3 text-sm text-muted-foreground">
+                                  <div className="flex items-center gap-1"><Users className="w-4 h-4" /> {h.organizer}</div>
+                                </div>
+                                <div className="flex gap-2 pt-2">
+                                  <Button asChild variant="outline" size="sm" className="w-full">
+                                    <a href={h.learnMoreUrl} target="_blank" rel="noopener noreferrer">
+                                      <ExternalLink className="w-3 h-3 mr-2" /> Learn More
+                                    </a>
+                                  </Button>
+                                  <Button size="sm" className="w-full" onClick={() => setCreateTeamOpen(true)}>
+                                    <Plus className="w-3 h-3 mr-2" /> Team Up
+                                  </Button>
+                                </div>
+                              </div>
+                            </Card>
+                          </motion.div>
+                        ))
+                      )}
+                    </AnimatePresence>
+                  </div>
+                </>
+              )}
             </TabsContent>
 
             <TabsContent value="events" className="space-y-6">
@@ -179,16 +184,16 @@ export function Explore() {
                       <Plus className="w-4 h-4 mr-2" /> Post Event
                     </Button>
                   </div>
-                  
+
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     {loadingEvents ? (
                       Array.from({ length: 2 }).map((_, i) => <CardSkeleton key={i} />)
-                    ) : events?.length === 0 ? (
+                    ) : eventsData?.length === 0 ? (
                       <div className="col-span-full py-12 text-center text-muted-foreground">
                         No upcoming events. Be the first to host one!
                       </div>
                     ) : (
-                      events?.map((e: any) => (
+                      eventsData?.map((e: any) => (
                         <Card key={e.id} className="overflow-hidden hover:shadow-lg transition-all">
                           {e.bannerUrl && (
                             <img src={e.bannerUrl} alt={e.title} className="w-full h-40 object-cover" />

@@ -37,6 +37,7 @@ interface PostCardProps {
   category: "query" | "solution" | "job" | "discussion";
   userVote?: 1 | -1 | null;
   className?: string;
+  isFlagged?: boolean;
   onDelete?: (postId: string) => void;
 }
 
@@ -59,6 +60,7 @@ export function PostCard({
   category,
   userVote: initialUserVote,
   className,
+  isFlagged,
   onDelete
 }: PostCardProps) {
   const [userVote, setUserVote] = useState<1 | -1 | null>(initialUserVote ?? null);
@@ -146,7 +148,18 @@ export function PostCard({
   }
 
   return (
-    <Card className={cn("relative p-6 hover:shadow-medium transition-all duration-300 animate-fade-in", className)}>
+    <Card className={cn(
+      "relative p-6 hover:shadow-medium transition-all duration-300 animate-fade-in",
+      isFlagged && isOwner && "border-2 border-destructive/60 ring-1 ring-destructive/20",
+      className
+    )}>
+      {/* Flagged badge — shown only to the post owner */}
+      {isFlagged && isOwner && (
+        <div className="absolute top-0 left-0 right-0 flex items-center justify-center gap-1.5 bg-destructive/10 text-destructive text-xs font-semibold py-1 px-3 rounded-t-lg border-b border-destructive/20">
+          <span>⚠️</span>
+          <span>Under Review · This post has been flagged by AI moderation</span>
+        </div>
+      )}
       <div className="absolute bottom-4 right-4 sm:bottom-6 sm:right-6 text-xs text-muted-foreground">
         {timeAgo}
       </div>

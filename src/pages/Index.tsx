@@ -6,9 +6,11 @@ import Breadcrumbs from "@/components/ui/breadcrumb";
 import { useQueryClient } from "@tanstack/react-query";
 
 import { useSocketNotifications } from "@/hooks/useSocketNotifications";
+import { useModerationAlerts } from "@/hooks/useModerationAlerts";
 
 const Index = () => {
-  useSocketNotifications();
+  const socket = useSocketNotifications();
+  useModerationAlerts(socket);
   const [showCreatePost, setShowCreatePost] = useState(false);
   const queryClient = useQueryClient();
 
